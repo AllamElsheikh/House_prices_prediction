@@ -1,108 +1,106 @@
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-import argparse
-import os
 from abc import ABC, abstractmethod
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 
-class UnivariateAnalysisTech(ABC):
-    """
-    Abstract base class for univariate analysis techniques.
-    """
 
-    @abstractmethod
-    def analysis(self, df: pd.DataFrame, feature: str):
+# Abstract Base Class for Multivariate Analysis
+# ----------------------------------------------
+# This class defines a template for performing multivariate analysis.
+# Subclasses can override specific steps like correlation heatmap and pair plot generation.
+class MultivariateAnalysisTemplate(ABC):
+    def analyze(self, df: pd.DataFrame):
         """
-        Abstract method to analyze a given feature.
+        Perform a comprehensive multivariate analysis by generating a correlation heatmap and pair plot.
 
         Parameters:
-        df (pd.DataFrame): The dataframe containing the feature.
-        feature (str): The feature column to analyze.
+        df (pd.DataFrame): The dataframe containing the data to be analyzed.
+
+        Returns:
+        None: This method orchestrates the multivariate analysis process.
+        """
+        self.generate_correlation_heatmap(df)
+        self.generate_pairplot(df)
+
+    @abstractmethod
+    def generate_correlation_heatmap(self, df: pd.DataFrame):
+        """
+        Generate and display a heatmap of the correlations between features.
+
+        Parameters:
+        df (pd.DataFrame): The dataframe containing the data to be analyzed.
+
+        Returns:
+        None: This method should generate and display a correlation heatmap.
+        """
+        pass
+
+    @abstractmethod
+    def generate_pairplot(self, df: pd.DataFrame):
+        """
+        Generate and display a pair plot of the selected features.
+
+        Parameters:
+        df (pd.DataFrame): The dataframe containing the data to be analyzed.
+
+        Returns:
+        None: This method should generate and display a pair plot.
         """
         pass
 
 
-class NumericalUnivariateAnalysisTech(UnivariateAnalysisTech):
-    """
-    Concrete class for analyzing numerical features.
-    """
-
-    def analysis(self, df: pd.DataFrame, feature: str):
+# Concrete Class for Multivariate Analysis with Correlation Heatmap and Pair Plot
+# -------------------------------------------------------------------------------
+# This class implements the methods to generate a correlation heatmap and a pair plot.
+class SimpleMultivariateAnalysis(MultivariateAnalysisTemplate):
+    def generate_correlation_heatmap(self, df: pd.DataFrame):
         """
-        Plots a histogram and KDE for a numerical feature.
+        Generates and displays a correlation heatmap for the numerical features in the dataframe.
 
         Parameters:
-        df (pd.DataFrame): The dataframe containing the feature.
-        feature (str): The numerical feature to analyze.
-        """
-        plt.figure(figsize=(10, 6))
-        sns.histplot(df[feature], kde=True, bins=6)
-        plt.title(f"Distribution of {feature}")
-        plt.xlabel(feature)
-        plt.ylabel("Frequency")
+        df (pd.DataFrame): The dataframe containing the data to be analyzed.
 
-        # Ensure directory exists before saving the plot
-        
-        save_path = f"/content/plots/{feature}_distribution.png"
+        Returns:
+        None: Displays a heatmap showing correlations between numerical features.
+        """
+        plt.figure(figsize=(12, 10))
+        sns.heatmap(df.corr(), annot=True, fmt=".2f", cmap="coolwarm", linewidths=0.5)
+        plt.title("Correlation Heatmap")
+        save_path =f"/content/plots/Correlation Heatmap.png"
         plt.savefig(save_path)
         plt.show()
 
-        print(f"Plot saved at: {save_path}")
-
-
-class CategoricalUnivariateAnalysisTech(UnivariateAnalysisTech):
-    """
-    Concrete class for analyzing categorical features.
-    """
-
-    def analysis(self, df: pd.DataFrame, feature: str):
+    def generate_pairplot(self, df: pd.DataFrame):
         """
-        Plots a count plot for a categorical feature.
+        Generates and displays a pair plot for the selected features in the dataframe.
 
         Parameters:
-        df (pd.DataFrame): The dataframe containing the feature.
-        feature (str): The categorical feature to analyze.
-        """
-        plt.figure(figsize=(10, 6))
-        sns.countplot(x=df[feature])  # Removed kde=True and bins=6 (not applicable)
-        plt.title(f"Distribution of {feature}")
-        plt.xlabel(feature)
-        plt.ylabel("Count")
+        df (pd.DataFrame): The dataframe containing the data to be analyzed.
 
-        # Ensure directory exists before saving the plot
-      
-        save_path =f"/content/plots/cat_{feature}_distribution.png"
+        Returns:
+        None: Displays a pair plot for the selected features.
+        """
+        sns.pairplot(df)
+        plt.suptitle("Pair Plot of Selected Features", y=1.02)
+        save_path =f"/content/plots/pairplot.png"
         plt.savefig(save_path)
         plt.show()
 
-        print(f"Plot saved at: {save_path}")
 
-
-# def main():
-#     """
-#     Main function to handle command-line arguments and execute univariate analysis.
-#     """
-#     parser = argparse.ArgumentParser(description="Perform univariate analysis on a dataset.")
-#     parser.add_argument("file_path", type=str, help="Path to the CSV dataset.")
-#     parser.add_argument("feature", type=str, help="Feature column to analyze.")
-#     parser.add_argument("--type", type=str, choices=["numerical", "categorical"], required=True,
-#                         help="Type of feature: 'numerical' or 'categorical'.")
-
-#     args = parser.parse_args()
-
-#     # Load dataset
-#     df = pd.read_csv(args.file_path)
-
-#     # Select the correct analysis technique
-#     if args.type == "numerical":
-#         analyzer = NumericalUnivariateAnalysisTech()
-#     else:
-#         analyzer = CategoricalUnivariateAnalysisTech()
-
-#     # Perform analysis
-#     analyzer.analysis(df, args.feature)
-
-
+# # Example usage
 # if __name__ == "__main__":
-#     main()
+#     # Example usage of the SimpleMultivariateAnalysis class.
+
+#     # Load the data
+#     # df = pd.read_csv('../extracted-data/your_data_file.csv')
+
+#     # Perform Multivariate Analysis
+#     # multivariate_analyzer = SimpleMultivariateAnalysis()
+
+#     # Select important features for pair plot
+#     # selected_features = df[['SalePrice', 'Gr Liv Area', 'Overall Qual', 'Total Bsmt SF', 'Year Built']]
+
+#     # Execute the analysis
+#     # multivariate_analyzer.analyze(selected_features)
+#     pass
